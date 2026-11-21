@@ -15,8 +15,9 @@
 #include "generated/RuntimeConfig.h"
 #include "os_internal.h"
 
-extern "C" void func_8041F054(CpuContext* ctx);
-extern "C" void func_80416128(CpuContext* ctx);
+// Kirby build: weak, because these guest addresses come from Wario. Missing -> the call is skipped.
+extern "C" void func_8041F054(CpuContext* ctx) __attribute__((weak));
+extern "C" void func_80416128(CpuContext* ctx) __attribute__((weak));
 
 // ============================================================================
 // Alarm queue helpers
@@ -210,7 +211,7 @@ bool ProcessAlarmQueue(CpuContext* cpu, int maxToProcess)
                     cpu->gpr[5] = 0;
                     cpu->gpr[6] = 0;
                     cpu->gpr[7] = handler;
-                    func_80416128(cpu);
+                    if (&func_80416128) func_80416128(cpu);
                 }
 
                 if (handler != 0) {
@@ -450,7 +451,7 @@ extern "C" void OS__SetPeriodicAlarm_801a08e0(CpuContext* ctx)
 
     cpu->gpr[3] = startHi;
     cpu->gpr[4] = startLo;
-    func_8041F054(cpu);
+    if (&func_8041F054) func_8041F054(cpu);
     Memory::Write32(alarm + 0x20u, cpu->gpr[3]);
     Memory::Write32(alarm + 0x24u, cpu->gpr[4]);
 
@@ -458,7 +459,7 @@ extern "C" void OS__SetPeriodicAlarm_801a08e0(CpuContext* ctx)
     cpu->gpr[5] = 0;
     cpu->gpr[6] = 0;
     cpu->gpr[7] = handler;
-    func_80416128(cpu);
+    if (&func_80416128) func_80416128(cpu);
 
     cpu->gpr[3] = static_cast<uint32_t>(OS__RestoreInterrupts_801a65d4(level));
 }

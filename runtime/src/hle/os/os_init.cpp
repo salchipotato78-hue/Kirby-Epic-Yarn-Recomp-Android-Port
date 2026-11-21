@@ -19,16 +19,17 @@
 #include "runtime_log.h"
 #include "system_bridge.h"
 
-extern "C" void func_8041DA1C(CpuContext* ctx);
+extern "C" void func_8041DA1C(CpuContext* ctx) __attribute__((weak));
 #if 0  // NSMBW: MKW StaticR.rel prolog
 extern "C" void func_8055531C(CpuContext* ctx);
 #endif
 
 extern "C" void OSInitAlarm_RecompModLateInit_801a961c(CpuContext* ctx) {
-    func_8041DA1C(ctx);
+    if (&func_8041DA1C) func_8041DA1C(ctx);
 }
 
-REGISTER_NATIVE_FUNCTION_AS(0x8041DA1C, OSInitAlarm_RecompModLateInit_801a961c, "OSInitAlarm_RecompModLateInit_801a961c");
+// Kirby build: disabled. 0x8041DA1C is Wario's address; in Kirby it is a different guest function.
+// REGISTER_NATIVE_FUNCTION_AS(0x8041DA1C, OSInitAlarm_RecompModLateInit_801a961c, "OSInitAlarm_RecompModLateInit_801a961c");
 
 #if 0  // NSMBW: MKW StaticR.rel prolog wrapper (Retro Rewind mod init); NSMBW has no StaticR
 extern "C" void StaticRProlog_RecompModInit_8055531c(CpuContext* ctx) {
