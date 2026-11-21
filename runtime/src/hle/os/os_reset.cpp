@@ -136,7 +136,9 @@ extern "C" uint32_t OSResetSystem()
     return 0; // unreachable, but keeps the signature consistent with callers
 }
 
-PPC_NATIVE_OVERRIDE(8041CEF0, OSResetSystem, uint32_t, (), ());
+// Kirby build: disabled. 0x8041CEF0 is Wario's OSResetSystem; it exits the process without writing
+// a crash file, the same silent exit seen in the logs.
+// PPC_NATIVE_OVERRIDE(8041CEF0, OSResetSystem, uint32_t, (), ());
 
 // 0x801B89E0 -> exit(int status)
 extern "C" uint32_t Exit_801AE58C(int status)
@@ -155,4 +157,6 @@ extern "C" uint32_t Exit_801AE58C(int status)
     return static_cast<uint32_t>(status);
 }
 
-PPC_NATIVE_OVERRIDE(80420E78, Exit_801AE58C, uint32_t, (int status), (status));
+// Kirby build: disabled. 0x80420E78 is Wario's exit(); in Kirby that address is game code, and the
+// override ended the process silently (black screen, then back to the launcher).
+// PPC_NATIVE_OVERRIDE(80420E78, Exit_801AE58C, uint32_t, (int status), (status));
