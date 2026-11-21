@@ -415,6 +415,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: kirby-land-shake-it-apk
+          name: kirbys-epic-yarn-apk
           path: android/app/build/outputs/apk/release/*.apk
           if-no-files-found: error

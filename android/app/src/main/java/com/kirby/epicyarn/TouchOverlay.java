@@ -50,8 +50,6 @@ public class TouchOverlay extends View {
     private static final int[] RES = {
             R.drawable.kirby_joystick_completo, R.drawable.kirby_btn_1, R.drawable.kirby_btn_2,
             R.drawable.btn_plus, R.drawable.btn_shake};
-    // Stick knob, drawn while the stick is pressed (the resting art is the complete stick).
-    private static final int KNOB_RES = R.drawable.kirby_joystick_adentro;
 
     private final SharedPreferences prefs;
     private final float density;
@@ -60,7 +58,6 @@ public class TouchOverlay extends View {
     private final float[] scale = new float[COUNT];
     private final float[] alpha = new float[COUNT];
     private final Bitmap[] bitmaps = new Bitmap[COUNT];
-    private final Bitmap knobBitmap;
 
     // Pointer id -> control it is pressing, and -> what that press contributes to the remote.
     private final SparseIntArray pointerControl = new SparseIntArray();
@@ -110,7 +107,6 @@ public class TouchOverlay extends View {
                 bitmaps[c] = BitmapFactory.decodeResource(context.getResources(), RES[c]);
             }
         }
-        knobBitmap = BitmapFactory.decodeResource(context.getResources(), KNOB_RES);
         loadAll();
 
         ringPaint.setStyle(Paint.Style.STROKE);
@@ -747,8 +743,7 @@ public class TouchOverlay extends View {
         // The Shake button also lights up while the phone itself is shaking, so the player can see it.
         boolean pressed = isPressed(c) || (c == SHAKE_C && motionShake);
         int a = Math.round(alpha[c] * 255f);
-        // The stick swaps to its knob art while pressed; every other control keeps its own image.
-        Bitmap art = (c == JOY && pressed && knobBitmap != null) ? knobBitmap : bitmaps[c];
+        Bitmap art = bitmaps[c];
         if (art != null) {
             // The art is square; clip it to the same circle the drawn fallback uses.
             bitmapPaint.setAlpha(pressed ? 255 : a);
