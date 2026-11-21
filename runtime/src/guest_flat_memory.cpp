@@ -624,6 +624,16 @@ void Initialize(const std::vector<RegionRequest>& regions) {
         throw std::runtime_error(LastErrorText("committing the no-access MMIO window"));
     }
 
+    // Kirby build: the Hollywood registers (CP, PE, VI, PI, MI, DSP, DI, SI, EXI, AI, ...) are written
+    // directly by translated code, and Wario's HLE that used to absorb those writes is keyed by Wario
+    // addresses. Back them with plain memory so the stores land (writes are kept, reads return what was
+    // written, zero before that). The GX FIFO page 0xCC008000 stays no-access so its stores still reach
+    // GX HLE, and the rest of the MMIO window stays protected.
+    if (!ProtectRange(g_base + 0xCC000000u, 0x8000u, kProtReadWrite) ||
+        !ProtectRange(g_base + 0xCC009000u, 0x7000u, kProtReadWrite)) {
+        throw std::runtime_error(LastErrorText("opening the Hollywood register sink"));
+    }
+
     ApplyExecutableProtectionLocked();
 #if defined(_WIN32)
     InstallVectoredHandler();
