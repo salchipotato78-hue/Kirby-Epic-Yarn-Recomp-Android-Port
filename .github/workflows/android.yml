@@ -223,7 +223,7 @@ jobs:
           TR="dotnet fw/translator/src/Translator.Cli/bin/Release/net8.0/Translator.Cli.dll"
           P=projects/kirby/recomp.yml
           mkdir -p generated
-          $TR translate-recursive 0x80006124 --project $P \
+          $TR translate-recursive 0x80004050 --project $P \
             --outdir generated/functions \
             --output-metadata generated/base_translation_output.json \
             --production-source-bundle generated/base_translation_sources.bin \

@@ -64,10 +64,9 @@ void WriteCrashArtifacts(std::string_view reason,
 // isa/ppc_isa_context.h - that is its standalone host seam, not a duplicate.)
 void ShowRuntimeFatalPopup(std::string_view category, std::string_view details) noexcept;
 
-// Wario Land: Shake It! translated entry point (__start). The products always boot here, so
-// this is applied as the default while parsing the command line; there is no
-// flag to override it.
-inline constexpr uint32_t kDefaultEntryAddress = 0x80006124u;
+// Kirby's Epic Yarn translated entry point (__start, the DOL entry from main.dol header offset 0xE0).
+// Wario used 0x80006124; in Kirby that address is inside _init, so the game returned at once.
+inline constexpr uint32_t kDefaultEntryAddress = 0x80004050u;
 
 class SystemBridge {
 public:
