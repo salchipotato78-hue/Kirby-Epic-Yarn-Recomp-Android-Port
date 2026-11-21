@@ -77,6 +77,10 @@ public class TouchOverlay extends View {
     private boolean touchShown = true;
     private final TextView[] modeChips = new TextView[3];
     private int selected = JOY;
+    // The stick: the finger that holds it and where it is (screen px). -1 = nobody holds it.
+    private int joyPointer = -1;
+    private float joyX, joyY;
+    private float lastStickX, lastStickY;
     private int dragControl = -1;
     private int dragPointer = -1;
     private float lastX;
@@ -229,7 +233,7 @@ public class TouchOverlay extends View {
             return SHAKE_FLAG;
         }
         if (c == JOY) {
-            return joystickBits(rectOf(JOY), x, y);
+            return 0;  // the stick goes out as analog axes in sendInput, not as d-pad bits
         }
         return bitsFor(c);
     }
@@ -323,6 +327,11 @@ public class TouchOverlay extends View {
             return false;
         }
         pointerControl.put(id, c);
+        if (c == JOY) {
+            joyPointer = id;
+            joyX = x;
+            joyY = y;
+        }
         pointerInput.put(id, contribution(c, x, y));
         sendInput();
         invalidate();
@@ -348,12 +357,20 @@ public class TouchOverlay extends View {
         if (c < 0) {
             return;
         }
+        if (c == JOY) {
+            joyX = x;
+            joyY = y;
+        }
         pointerInput.put(id, contribution(c, x, y));
         sendInput();
         invalidate();
     }
 
     private void onUp(int id) {
+        if (id == joyPointer) {
+            joyPointer = -1;
+            sendInput();
+        }
         if (editing) {
             if (id == dragPointer) {
                 dragControl = -1;
@@ -448,8 +465,32 @@ public class TouchOverlay extends View {
         invalidate();
     }
 
+    // Stick vector for the runtime: -1..1 per axis, +y up, radial dead zone, length capped at 1.
+    private float[] stickVector() {
+        if (joyPointer < 0) {
+            return new float[]{0f, 0f};
+        }
+        RectF r = rectOf(JOY);
+        float half = r.width() / 2f;
+        float dx = (joyX - r.centerX()) / half;
+        float dy = (joyY - r.centerY()) / half;  // screen y grows downwards
+        float mag = (float) Math.sqrt(dx * dx + dy * dy);
+        float dead = 0.15f;
+        if (mag < dead) {
+            return new float[]{0f, 0f};
+        }
+        float scale = (Math.min(mag, 1f) - dead) / (1f - dead) / mag;
+        return new float[]{dx * scale, -dy * scale};
+    }
+
     // Sends the combined state of every pressed control, only when it changes.
     private void sendInput() {
+        float[] stick = stickVector();
+        if (stick[0] != lastStickX || stick[1] != lastStickY) {
+            lastStickX = stick[0];
+            lastStickY = stick[1];
+            GameActivity.nativeSetTouchStick(stick[0], stick[1]);
+        }
         int buttons = 0;
         boolean shake = motionShake;
         for (int i = 0; i < pointerInput.size(); i++) {

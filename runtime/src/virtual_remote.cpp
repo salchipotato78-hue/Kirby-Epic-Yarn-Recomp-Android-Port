@@ -107,6 +107,8 @@ struct Intent {
     float tilt = 0.0f;     // -1 counter-clockwise (left) .. 1 clockwise (right)
     bool hasAccel = false; // WARIO: acelerometro real del mando (DualSense...), en el marco de KPAD (g)
     float accel[3] = {0.0f, -1.0f, 0.0f};
+    bool hasStick = false; // analog touch stick (Nunchuk stick), -1..1, +y up
+    float stick[2] = {0.0f, 0.0f};
 };
 
 struct Motion {
@@ -144,6 +146,8 @@ std::atomic<uint32_t> g_touchButtonsSinceRead{0};
 std::atomic<bool> g_touchShake{false};
 std::atomic<bool> g_touchShakeSinceRead{false};
 std::atomic<float> g_touchTilt{0.0f};
+std::atomic<float> g_touchStickX{0.0f};
+std::atomic<float> g_touchStickY{0.0f};
 // Phone accelerometer (Android), already in KPAD's frame and in g. Valid only while the activity
 // reports it; the game reads it as the Wii Remote's own accelerometer.
 std::atomic<bool> g_phoneAccelValid{false};
@@ -504,6 +508,15 @@ Intent TouchIntent() {
     intent.shake = g_touchShake.load(std::memory_order_relaxed) ||
                    g_touchShakeSinceRead.exchange(false, std::memory_order_relaxed);
     intent.tilt = std::clamp(g_touchTilt.load(std::memory_order_relaxed), -1.0f, 1.0f);
+    {
+        const float sx = g_touchStickX.load(std::memory_order_relaxed);
+        const float sy = g_touchStickY.load(std::memory_order_relaxed);
+        if (sx != 0.0f || sy != 0.0f) {
+            intent.hasStick = true;
+            intent.stick[0] = sx;
+            intent.stick[1] = sy;
+        }
+    }
     // WARIO: el dedo apunta como el stick izquierdo (mismo calculo que GamepadIntent): la direccion del dedo desde
     // el centro de la imagen da el angulo de inclinacion, hasta 85 grados. Al soltar, el angulo se queda.
     if (g_touchAimValid.load(std::memory_order_relaxed)) {
@@ -660,6 +673,11 @@ void SetTouchAim(float x, float y, float viewWidth, float viewHeight) {
     g_touchAimPosX.store(std::clamp((x - w * 0.5f) / (viewW * 0.5f), -1.0f, 1.0f), std::memory_order_relaxed);
     g_touchAimPosY.store(std::clamp((y - h * 0.5f) / (pictureH * 0.5f), -1.0f, 1.0f), std::memory_order_relaxed);
     g_touchAimValid.store(true, std::memory_order_relaxed);
+}
+
+void SetTouchStick(float x, float y) {
+    g_touchStickX.store(std::isfinite(x) ? std::clamp(x, -1.0f, 1.0f) : 0.0f, std::memory_order_relaxed);
+    g_touchStickY.store(std::isfinite(y) ? std::clamp(y, -1.0f, 1.0f) : 0.0f, std::memory_order_relaxed);
 }
 
 void SetTouchState(uint32_t touchButtons, bool shake, float tilt) {
@@ -857,6 +875,11 @@ bool Sample(uint32_t chan, WiiRemoteInput::KpadSample& sample) {
     const auto merge = [&intent](const Intent& other) {
         intent.buttons |= other.buttons;
         intent.shake = intent.shake || other.shake;
+        if (other.hasStick) {
+            intent.hasStick = true;
+            intent.stick[0] = other.stick[0];
+            intent.stick[1] = other.stick[1];
+        }
         if (other.hasAccel) {  // WARIO
             intent.hasAccel = true;
             for (int k = 0; k < 3; ++k) intent.accel[k] = other.accel[k];
@@ -894,6 +917,12 @@ bool Sample(uint32_t chan, WiiRemoteInput::KpadSample& sample) {
     // game's copy after that check.
     sample = {};
     sample.hold = intent.buttons;
+    if (chan == 0 && intent.hasStick) {
+        // The touch stick reads as a Nunchuk stick, so the game sees analog movement, not the d-pad.
+        sample.hasNunchuk = true;
+        sample.stick[0] = intent.stick[0];
+        sample.stick[1] = intent.stick[1];
+    }
     ApplyMotion(g_motion[chan], intent, sample);
     if (chan == 0) UpdatePointer(sample);
     if (chan == 0) WarioRuntimeFixesTick();  // wario_fixes.cpp

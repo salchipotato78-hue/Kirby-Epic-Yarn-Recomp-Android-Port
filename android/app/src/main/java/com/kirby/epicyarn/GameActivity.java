@@ -55,6 +55,7 @@ public class GameActivity extends SDLActivity {
 
     // Implemented in runtime/src/android/android_bridge.cpp.
     public static native void nativeSetTouchState(int buttons, boolean shake, float tilt);
+    public static native void nativeSetTouchStick(float x, float y);
     public static native void nativeApplyDisplaySettings(int aspect, float renderScale, boolean showFps);
     public static native void nativeSetDisplayClock(long vblankNanos, double hz);
     public static native void nativeReportThermalHeadroom(float headroom);

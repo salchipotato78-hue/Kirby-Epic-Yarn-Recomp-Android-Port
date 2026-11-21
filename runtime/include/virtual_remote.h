@@ -35,6 +35,7 @@ enum TouchButton : uint32_t {
     kTouchOne = 0x010, kTouchTwo = 0x020, kTouchA = 0x040, kTouchPlus = 0x080, kTouchMinus = 0x100,
 };
 void SetTouchState(uint32_t touchButtons, bool shake, float tilt);
+void SetTouchStick(float x, float y);  // analog stick, -1..1, +y up
 // The phone's accelerometer in KPAD's frame, in g (rest: y = -1; clockwise roll: z = +sin).
 // valid = false when the sensor is not reported (activity paused, no sensor).
 void SetPhoneAccel(float x, float y, float z, bool valid);

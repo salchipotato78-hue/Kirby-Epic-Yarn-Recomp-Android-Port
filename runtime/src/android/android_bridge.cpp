@@ -67,6 +67,13 @@ JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetTouchState(
     VirtualRemote::SetTouchState(static_cast<uint32_t>(buttons), shake == JNI_TRUE, tilt);
 }
 
+// GameActivity.nativeSetTouchStick: the on-screen stick as analog axes (-1..1, +y up), for the Nunchuk stick.
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetTouchStick(
+    JNIEnv*, jclass, jfloat x, jfloat y)
+{
+    VirtualRemote::SetTouchStick(x, y);
+}
+
 // GameActivity.nativeSetPhoneAccel: the phone's accelerometer in KPAD's frame (g). Tilting and
 // shaking the phone is the Wii Remote's motion, so the game reads it instead of the shake button.
 JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetPhoneAccel(
