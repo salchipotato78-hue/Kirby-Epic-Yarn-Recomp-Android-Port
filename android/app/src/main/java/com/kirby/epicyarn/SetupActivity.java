@@ -260,7 +260,7 @@ public class SetupActivity extends Activity {
         root.setBackgroundColor(Color.BLACK);
 
         TextView title = new TextView(this);
-        title.setText("Kirb's Epic Yarn");
+        title.setText("Kirby's Epic Yarn");
         title.setTextColor(Color.WHITE);
         title.setTextSize(22);
         title.setGravity(Gravity.CENTER);

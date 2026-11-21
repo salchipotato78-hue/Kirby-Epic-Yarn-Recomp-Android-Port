@@ -61,7 +61,7 @@ extern "C" {
 
 // GameActivity.nativeSetTouchState: the on-screen remote (VirtualRemote::TouchButton bits) and the
 // phone's motion (shake, tilt -1..1) for player 1. Called from the UI thread on every change.
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetTouchState(
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetTouchState(
     JNIEnv*, jclass, jint buttons, jboolean shake, jfloat tilt)
 {
     VirtualRemote::SetTouchState(static_cast<uint32_t>(buttons), shake == JNI_TRUE, tilt);
@@ -69,14 +69,14 @@ JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetTouchState(
 
 // GameActivity.nativeSetPhoneAccel: the phone's accelerometer in KPAD's frame (g). Tilting and
 // shaking the phone is the Wii Remote's motion, so the game reads it instead of the shake button.
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetPhoneAccel(
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetPhoneAccel(
     JNIEnv*, jclass, jfloat x, jfloat y, jfloat z, jboolean valid)
 {
     VirtualRemote::SetPhoneAccel(x, y, z, valid == JNI_TRUE);
 }
 
 // GameActivity.nativeSetTouchAim: the finger's position in the view (pixels) and the view's size.
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetTouchAim(
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetTouchAim(
     JNIEnv*, jclass, jfloat x, jfloat y, jfloat viewWidth, jfloat viewHeight)
 {
     VirtualRemote::SetTouchAim(x, y, viewWidth, viewHeight);
@@ -85,7 +85,7 @@ JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetTouchAim(
 // GameActivity.nativeApplyDisplaySettings: the Display menu. The aspect (0 original 4:3, 1 16:9,
 // 2 fill the screen) and the render scale (480 lines per 1x) apply at the next frame; 4:3 versus a
 // widescreen mode only at the next start, since the game reads it at boot.
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeApplyDisplaySettings(
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeApplyDisplaySettings(
     JNIEnv*, jclass, jint aspect, jfloat renderScale, jboolean showFps)
 {
     // Through the settings overlay, so the game's own settings window shows the same choice. A scale
@@ -97,7 +97,7 @@ JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeApplyDisplaySet
 
 // GameActivity.nativeReportThermalHeadroom: PowerManager.getThermalHeadroom, about once a second.
 // Around 1.0 means throttling is imminent; NaN means the device cannot tell (ignored by the runtime).
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeReportThermalHeadroom(
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeReportThermalHeadroom(
     JNIEnv*, jclass, jfloat headroom)
 {
     ThermalQuality::ReportHeadroom(static_cast<float>(headroom));
@@ -105,7 +105,7 @@ JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeReportThermalHe
 
 // GameActivity.nativeSetDisplayClock: called on every display frame by the activity (Choreographer).
 // Gives the game clock the real vblank time and refresh rate, so it can lock to the screen.
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetDisplayClock(
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetDisplayClock(
     JNIEnv*, jclass, jlong vblankNanos, jdouble hz)
 {
     WarioSetAndroidDisplayClock(static_cast<int64_t>(vblankNanos), static_cast<double>(hz));
@@ -113,7 +113,7 @@ JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetDisplayClock
 
 // GameActivity.nativeGraphicsInfo: the GPU the game is drawing with and whether the GPU
 // compatibility fixes are on, as "<name>\n<1|0>"; empty until the renderer has started.
-JNIEXPORT jstring JNICALL Java_com_wario_shakeit_GameActivity_nativeGraphicsInfo(JNIEnv* env, jclass)
+JNIEXPORT jstring JNICALL Java_com_kirby_epicyarn_GameActivity_nativeGraphicsInfo(JNIEnv* env, jclass)
 {
     const std::string name = GraphicsInfo::Name();
     if (name.empty()) {
@@ -124,7 +124,7 @@ JNIEXPORT jstring JNICALL Java_com_wario_shakeit_GameActivity_nativeGraphicsInfo
 }
 
 // GameActivity.nativeSetDeviceName: what this phone is called in room lists.
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetDeviceName(JNIEnv* env, jclass, jstring name)
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSetDeviceName(JNIEnv* env, jclass, jstring name)
 {
     if (name == nullptr) {
         return;
@@ -137,26 +137,26 @@ JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeSetDeviceName(J
 }
 
 // GameActivity.nativeSessionActive: whether this run is a LAN session (the menu offers to leave it).
-JNIEXPORT jboolean JNICALL Java_com_wario_shakeit_GameActivity_nativeSessionActive(JNIEnv*, jclass)
+JNIEXPORT jboolean JNICALL Java_com_kirby_epicyarn_GameActivity_nativeSessionActive(JNIEnv*, jclass)
 {
     return NetplaySession::Active() ? JNI_TRUE : JNI_FALSE;
 }
 
 // GameActivity.nativePrepareToLeave: the menu's "Leave LAN game", before the app restarts the game.
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativePrepareToLeave(JNIEnv*, jclass)
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativePrepareToLeave(JNIEnv*, jclass)
 {
     NetplayStart::PrepareToLeave();
 }
 
 // GameActivity.nativeTap: a tap on the game's menus, as fractions of the screen (netplay_ui.h).
-JNIEXPORT void JNICALL Java_com_wario_shakeit_GameActivity_nativeTap(JNIEnv*, jclass, jfloat x, jfloat y)
+JNIEXPORT void JNICALL Java_com_kirby_epicyarn_GameActivity_nativeTap(JNIEnv*, jclass, jfloat x, jfloat y)
 {
     NetplayUi::Tap(x, y);
 }
 
 // GameActivity.nativeTakeSettings: {render scale, show FPS 1/0, aspect, spinning coins 1/0, frame graph 1/0} when the game's settings
 // window changed them since the last call, else null; the app saves them for the next start.
-JNIEXPORT jfloatArray JNICALL Java_com_wario_shakeit_GameActivity_nativeTakeSettings(JNIEnv* env, jclass)
+JNIEXPORT jfloatArray JNICALL Java_com_kirby_epicyarn_GameActivity_nativeTakeSettings(JNIEnv* env, jclass)
 {
     float scale = 1.0f;
     bool showFps = false;
@@ -174,7 +174,7 @@ JNIEXPORT jfloatArray JNICALL Java_com_wario_shakeit_GameActivity_nativeTakeSett
 }
 
 // GameActivity.nativeTapScreen: whether a menu that taps drive is up (the app hides its remote).
-JNIEXPORT jboolean JNICALL Java_com_wario_shakeit_GameActivity_nativeTapScreen(JNIEnv*, jclass)
+JNIEXPORT jboolean JNICALL Java_com_kirby_epicyarn_GameActivity_nativeTapScreen(JNIEnv*, jclass)
 {
     return NetplayUi::TapScreenUp() ? JNI_TRUE : JNI_FALSE;
 }

@@ -173,7 +173,7 @@ public class LauncherActivity extends Activity {
 
     private void buildSide() {
         side.removeAllViews();
-        TextView logo = text(t("KIRB'S\nEPIC YARN", "KIRB'S\nEPIC YARN"), 20, GOLD);
+        TextView logo = text(t("KIRBY'S\nEPIC YARN", "KIRBY'S\nEPIC YARN"), 20, GOLD);
         logo.setTypeface(Typeface.create("sans-serif-black", Typeface.BOLD));
         logo.setPadding(dp(18), dp(22), dp(14), dp(18));
         side.addView(logo, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
